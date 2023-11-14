@@ -19,5 +19,21 @@ jobs:
         run: echo "short_sha=$(echo ${{ github.sha }} | cut -c1-6)" >> $GITHUB_ENV
       - name: Build and push
         run: |
+           cd Custom_folder
            docker build -t minhquan0107/spark-demo:${{ env.short_sha }} .
            docker push minhquan0107/spark-demo:${{ env.short_sha }}
+      - uses: actions/checkout@v4
+        name: GitOps - Checkout
+        with:
+          repository: itsbobbybytheway/apaches-park-gitops
+          ref: 'master'
+          token: ${{ secrets.PAT }}
+          fetch-depth: 0
+          path: k8s
+      - name: GitOps - Patch and push
+        run: |
+          git -C k8s config user.name "itsbobbybytheway"
+          git -C k8s config user.email "minhquan010710@gmail.com"
+          sed -i 's|image: .*|image: 'minhquan0107/spark-demo:${{ env.short_sha }}'|g' k8s/k8s/spark.yaml
+          git -C k8s commit -am "new tag ${{ env.short_sha }}"
+          git -C k8s push origin master
