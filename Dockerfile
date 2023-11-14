@@ -1,4 +1,4 @@
-FROM bitnami/spark:3.0.0
+FROM apache/spark:3.3.3-python3
 WORKDIR /app
 COPY . /app
-CMD ["spark-submit", "app.py"]
+CMD ["/opt/spark/bin/spark-submit", "app.py"]
